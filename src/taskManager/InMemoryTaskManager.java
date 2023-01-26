@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Map<Integer, Task> tasks;
-    private Map<Integer, Epic> epics;
-    private Map<Integer, Subtask> subtasks;
-    private HistoryManager inMemoryHistoryManager;
+    final private Map<Integer, Task> tasks;
+    final private Map<Integer, Epic> epics;
+    final private Map<Integer, Subtask> subtasks;
+    final HistoryManager inMemoryHistoryManager;
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();

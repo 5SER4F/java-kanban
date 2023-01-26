@@ -1,9 +1,5 @@
-import taskManager.InMemoryTaskManager;
 import tasks.*;
 import taskManager.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 
@@ -38,6 +34,7 @@ public class Main {
         inMemoryTaskManager.getEpic(epic.getId());
         inMemoryTaskManager.getSubtask(subtask1.getId());
         inMemoryTaskManager.getSubtask(subtask2.getId());
+        
         for (Task task : inMemoryTaskManager.getHistory()) {
             System.out.println(task);
         }
