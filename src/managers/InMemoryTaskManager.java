@@ -1,4 +1,4 @@
-package taskManager;
+package managers;
 
 import tasks.*;
 import java.util.ArrayList;
@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    final private Map<Integer, Task> tasks;
-    final private Map<Integer, Epic> epics;
-    final private Map<Integer, Subtask> subtasks;
+    private final Map<Integer, Task> tasks;
+    private final Map<Integer, Epic> epics;
+    private final Map<Integer, Subtask> subtasks;
     final HistoryManager inMemoryHistoryManager;
 
     public InMemoryTaskManager() {
