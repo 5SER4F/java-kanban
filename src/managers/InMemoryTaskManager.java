@@ -1,6 +1,7 @@
 package managers;
 
 import tasks.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -166,6 +167,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         tasks.remove(id);
+        inMemoryHistoryManager.remove(id);
     }
 
     @Override
@@ -176,8 +178,10 @@ public class InMemoryTaskManager implements TaskManager {
         }
         ArrayList<Integer> subtasksToRemove = (ArrayList<Integer>) epics.get(id).getMySubtasksId();
         epics.remove(id);
+        inMemoryHistoryManager.remove(id);
         for (Integer idToRemove : subtasksToRemove) {
             subtasks.remove(idToRemove);
+            inMemoryHistoryManager.remove(idToRemove);
         }
     }
 
@@ -187,10 +191,10 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Такой подзадачи нет.");
             return;
         }
-
         epics.get(subtasks.get(id).getMyEpicId()).removeSubtask(id);
         checkEpicStatus(subtasks.get(id).getMyEpicId());
         subtasks.remove(id);
+        inMemoryHistoryManager.remove(id);
     }
 
     @Override
