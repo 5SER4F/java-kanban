@@ -8,17 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final Map<Integer, Task> tasks;
-    private final Map<Integer, Epic> epics;
-    private final Map<Integer, Subtask> subtasks;
-    final HistoryManager inMemoryHistoryManager;
-
-    public InMemoryTaskManager() {
-        tasks = new HashMap<>();
-        epics = new HashMap<>();
-        subtasks = new HashMap<>();
-        inMemoryHistoryManager = Managers.getDefaultHistory();
-    }
+    private final Map<Integer, Task> tasks = new HashMap<>();
+    private final Map<Integer, Epic> epics = new HashMap<>();
+    private final Map<Integer, Subtask> subtasks = new HashMap<>();
+    final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
 
     @Override
     public void printTasks() {

@@ -3,8 +3,8 @@ package managers;
 import tasks.Task;
 
 class Node {
-    public Node prevNode;
-    public Node nextNode;
+    private Node prevNode;
+    private Node nextNode;
     private final Task data;
 
     public Node(Node prevNode, Node nextNode, Task data) {

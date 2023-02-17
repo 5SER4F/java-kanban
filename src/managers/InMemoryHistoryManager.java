@@ -42,16 +42,14 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (prevNode == null && nextNode == null) {
                 return;
             }
-            try {
+            if (nextNode != null) {
                 nextNode.setPrevNode(prevNode);
-            } catch (NullPointerException exp) {
             }
-            try {
+            if (prevNode != null) {
                 if (node.getNextNode() == null) {
                     last = prevNode;
                 }
                 prevNode.setNextNode(nextNode);
-            } catch (NullPointerException exp) {
             }
         }
 

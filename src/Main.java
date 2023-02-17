@@ -1,9 +1,6 @@
 import tasks.*;
 import managers.*;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class Main {
 
     public static void main(String[] args) {
@@ -13,6 +10,10 @@ public class Main {
         Task task2 = new Task("Задача 2", "Описание задачи 2", Status.DONE);
         inMemoryTaskManager.addTask(task1);
         inMemoryTaskManager.addTask(task2);
+        inMemoryTaskManager.getTask(task1.getId());
+        inMemoryTaskManager.getTask(task2.getId());
+
+
 
         Epic epic = new Epic("Эпик", "Описание эпика 1");
         inMemoryTaskManager.addEpic(epic);
