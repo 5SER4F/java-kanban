@@ -3,16 +3,28 @@ package tasks;
 import java.util.Objects;
 
 public class Task {
-    protected String name;
-    protected String description;
     protected int id;
+    private TaskType type = TaskType.TASK;
+    protected String name;
     protected Status status;
+    protected String description;
+
+
+
 
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
         id = Objects.hash(name, description);
+    }
+
+    public Task(String name, String description, Status status, TaskType type) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        id = Objects.hash(name, description);
+        this.type = type;
     }
 
     public Task(Task o) {
@@ -28,8 +40,8 @@ public class Task {
 
     @Override
     public String toString() {
-        return "tasks.Task{" + "name='" + name + '\'' + ", description='" + description + '\'' + ", id=" + id +
-                ", status=" + status + '}';
+        return  "id=" + id + ", type=" + type + ", name=" + name +  ", status=" + status + ", description="
+                + description;
     }
 
     @Override

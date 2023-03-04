@@ -2,16 +2,13 @@ package managers;
 
 import tasks.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
-    final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
+    private final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
 
     @Override
     public void printTasks() {
@@ -85,10 +82,21 @@ public class InMemoryTaskManager implements TaskManager {
         return subtasks.get(id);
     }
 
+     void addToHistory(int id) {
+        if (tasks.containsKey(id)) {
+            inMemoryHistoryManager.add(tasks.get(id));
+        }
+        if (epics.containsKey(id)){
+            inMemoryHistoryManager.add(epics.get(id));
+        }
+        if (subtasks.containsKey(id)){
+            inMemoryHistoryManager.add(subtasks.get(id));
+        }
+    }
+
     @Override
     public void addTask(Task task) {
         if (tasks.containsKey(task.getId())) {
-            System.out.println("Такая задача уже есть.");
             return;
         }
         tasks.put(task.getId(), task);
@@ -97,7 +105,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addEpic(Epic epic) {
         if (epics.containsKey(epic.getId())) {
-            System.out.println("Такой эпик уже есть.");
             return;
         }
         epics.put(epic.getId(), epic);
@@ -106,7 +113,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
-            System.out.println("Такая подзадача уже есть.");
             return;
         }
         epics.get(subtask.getMyEpicId()).addSubtask(subtask);
@@ -212,6 +218,14 @@ public class InMemoryTaskManager implements TaskManager {
         return inMemoryHistoryManager.getHistory();
     }
 
+    List<Task> getAllId() {
+        LinkedList<Task> ids = new LinkedList<>();
+        ids.addAll(tasks.values());
+        ids.addAll(epics.values());
+        ids.addAll(subtasks.values());
+        return ids;
+    }
+
     private void checkEpicStatus(int epicId) {
         Epic epicToCheck = epics.get(epicId);
         ArrayList<Subtask> subtasksToCheck = new ArrayList<>();
@@ -221,4 +235,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicToCheck.checkStatus(subtasksToCheck);
     }
 
+    public HistoryManager getInMemoryHistoryManager() {
+        return inMemoryHistoryManager;
+    }
 }

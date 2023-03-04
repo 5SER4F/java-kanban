@@ -6,7 +6,7 @@ public class Subtask extends Task{
     private int myEpicId;
 
     public Subtask(String name, String description, Status status, int myEpicId) {
-        super(name, description, status);
+        super(name, description, status, TaskType.SUBTASK);
         this.myEpicId = myEpicId;
         id += Objects.hash(myEpicId);
     }
@@ -22,8 +22,7 @@ public class Subtask extends Task{
 
     @Override
     public String toString() {
-        return "tasks.Subtask{" + "name='" + name + '\'' + ", description='" + description + '\'' + ", id=" + id +
-                ", status=" + status + ", myEpicId=" + myEpicId + '}';
+        return super.toString() + ", myEpicId=" + myEpicId;
     }
 
     @Override
