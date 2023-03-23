@@ -3,41 +3,23 @@ package managers;
 import tasks.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
-    private final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
+    private final Set<Task> prioritizedTasks = new TreeSet<>(new Comparator<Task>() {
+        @Override
+        public int compare(Task o1, Task o2) {
+            return o1.getStartTime().compareTo(o2.getStartTime());
+        }
+    });
+    private final InMemoryHistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
 
     @Override
-    public void printTasks() {
-        if (tasks.isEmpty()) {
-            System.out.println("Задач нет.");
-        }
-        for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
-            System.out.println(entry.getValue());
-        }
-    }
-
-    @Override
-    public void printEpics() {
-        if (epics.isEmpty()) {
-            System.out.println("Эпиков нет.");
-        }
-        for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
-            System.out.println(entry.getValue());
-        }
-    }
-
-    @Override
-    public void printSubtasks() {
-        if (subtasks.isEmpty()) {
-            System.out.println("Подзадач нет.");
-        }
-        for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
-            System.out.println(entry.getValue());
-        }
+    public List<Task> getPrioritizedTasks() {
+        return prioritizedTasks.stream().collect(Collectors.toList());
     }
 
     @Override
@@ -96,33 +78,52 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
+        if (isIntersection(task)) {
+            throw new IllegalArgumentException("На это время уже назначена задача");
+        }
         if (tasks.containsKey(task.getId())) {
             return;
         }
         tasks.put(task.getId(), task);
+        prioritizedTasks.add(task);
     }
 
     @Override
     public void addEpic(Epic epic) {
+        if (isIntersection(epic)) {
+            throw new IllegalArgumentException("На это время уже назначена задача");
+        }
         if (epics.containsKey(epic.getId())) {
             return;
         }
         epics.put(epic.getId(), epic);
+        prioritizedTasks.add(epic);
     }
 
     @Override
     public void addSubtask(Subtask subtask) {
+        if (isIntersection(subtask)) {
+            throw new IllegalArgumentException("На это время уже назначена задача");
+        }
+        if (!epics.containsKey(subtask.getMyEpicId())) {
+            throw new IllegalStateException("Эпика для этого сабтаска  не существует");
+        }
         if (subtasks.containsKey(subtask.getId())) {
             return;
         }
         epics.get(subtask.getMyEpicId()).addSubtask(subtask);
         subtasks.put(subtask.getId(), subtask);
+        prioritizedTasks.add(subtask);
+        checkEpicStatus(subtask.getMyEpicId());
     }
 
     @Override
     public void updateTask(Task task) {
+        if (isIntersection(task)) {
+            throw new IllegalArgumentException("На это время уже назначена задача");
+        }
         if (!tasks.containsKey(task.getId())) {
-            System.out.println("Нельзя обновить несуществующую задачу.");
+            System.out.println("Нельзя обновить несуществующую задачу");
             return;
         }
         if (tasks.get(task.getId()).equals(task)) {
@@ -130,10 +131,15 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         tasks.put(task.getId(), task);
+        prioritizedTasks.remove(subtasks.get(task.getId()));
+        prioritizedTasks.add(task);
     }
 
     @Override
     public void updateEpic(Epic epic) {
+        if (isIntersection(epic)) {
+            throw new IllegalArgumentException("На это время уже назначена задача");
+        }
         if (!epics.containsKey(epic.getId())) {
             System.out.println("Нельзя обновить несуществующий эпик.");
             return;
@@ -143,10 +149,15 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         epics.put(epic.getId(), epic);
+        prioritizedTasks.remove(subtasks.get(epic.getId()));
+        prioritizedTasks.add(epic);
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
+        if (isIntersection(subtask)) {
+            throw new IllegalArgumentException("На это время уже назначена задача");
+        }
         if (!subtasks.containsKey(subtask.getId())) {
             System.out.println("Нельзя обновить несуществующую подзадачу.");
             return;
@@ -157,6 +168,8 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtasks.put(subtask.getId(), subtask);
         checkEpicStatus(subtask.getMyEpicId());
+        prioritizedTasks.remove(subtasks.get(subtask.getId()));
+        prioritizedTasks.add(subtask);
     }
 
     @Override
@@ -233,6 +246,12 @@ public class InMemoryTaskManager implements TaskManager {
             subtasksToCheck.add(subtasks.get(subtaskId));
         }
         epicToCheck.checkStatus(subtasksToCheck);
+    }
+
+    protected boolean isIntersection(Task task) {
+        return prioritizedTasks.stream().anyMatch(taskToMatch -> task.getStartTime().isAfter(taskToMatch.getStartTime())
+        && task.getStartTime().isBefore(taskToMatch.getStartTime()
+                .plusSeconds(taskToMatch.getDuration() * 60)));
     }
 
     public HistoryManager getInMemoryHistoryManager() {

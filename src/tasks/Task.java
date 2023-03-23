@@ -1,5 +1,6 @@
 package tasks;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public class Task {
@@ -9,22 +10,27 @@ public class Task {
     protected Status status;
     protected String description;
 
+    protected int duration;
 
+    Instant startTime;
 
-
-    public Task(String name, String description, Status status) {
+    public Task(String name, String description, Status status, int duration, Instant startTime) {
         this.name = name;
         this.description = description;
         this.status = status;
         id = Objects.hash(name, description);
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
-    public Task(String name, String description, Status status, TaskType type) {
+    public Task(String name, String description, Status status, TaskType type, int duration, Instant startTime) {
         this.name = name;
         this.description = description;
         this.status = status;
         id = Objects.hash(name, description);
         this.type = type;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public Task(Task o) {
@@ -32,16 +38,34 @@ public class Task {
         this.description = o.description;
         this.id = o.id;
         this.status = o.status;
+        this.duration = o.duration;
+        this.startTime = o.startTime;
     }
 
     public int getId() {
         return id;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public Instant getEndTime() {
+        return startTime.plusSeconds(duration * 60);
+    }
+
     @Override
     public String toString() {
         return  "id=" + id + ", type=" + type + ", name=" + name +  ", status=" + status + ", description="
-                + description;
+                + description + ", duration=" + duration + ", startTime=" + startTime;
     }
 
     @Override

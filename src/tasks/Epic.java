@@ -1,15 +1,16 @@
 package tasks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.*;
 
 public class Epic extends Task{
     private List<Integer> mySubtasksId;
+    private Instant endTime;
 
     public Epic(String name, String description) {
-        super(name, description, Status.NEW, TaskType.EPIC);
+        super(name, description, Status.NEW, TaskType.EPIC, 0, Instant.MAX);
         mySubtasksId = new ArrayList<>();
+
     }
 
     public Epic(Epic o) {
@@ -29,32 +30,54 @@ public class Epic extends Task{
     }
 
     public void checkStatus(List<Subtask> subtasks) {
-        if (subtasks.isEmpty()) {
-            status = Status.NEW;
-            return;
-        }
         boolean isDone = true;
+        boolean isHaveOneDone = false;
 
         for (Subtask subtask : subtasks) {
+            if (subtasks.isEmpty()) {
+                status = Status.NEW;
+                break;
+            }
             if (subtask.status == Status.NEW) {
                 isDone = false;
                 continue;
             }
             if (subtask.status == Status.IN_PROGRESS) {
-                status = Status.IN_PROGRESS;
-                return;
+                isDone = false;
+                isHaveOneDone = true;
+                break;
             }
+            if (subtask.status == Status.DONE)
+                isHaveOneDone = true;
         }
         if (isDone) {
             status = Status.DONE;
         }
         else {
-            status = Status.NEW;
+            if (isHaveOneDone) {
+                status = Status.IN_PROGRESS;
+            } else {
+                status = Status.NEW;
+            }
         }
+
+        duration = subtasks.stream().mapToInt(subtask -> subtask.getDuration()).sum();
+        OptionalLong optionalStartTimeMili = subtasks.stream()
+                .mapToLong(subtaskk -> subtaskk.getStartTime().toEpochMilli())
+                .min();
+        if (optionalStartTimeMili.isPresent()) {
+            startTime = Instant.ofEpochMilli(optionalStartTimeMili.getAsLong());
+        }
+        endTime = super.getEndTime();
     }
 
     public List<Integer> getMySubtasksId() {
         return mySubtasksId;
+    }
+
+    @Override
+    public Instant getEndTime() {
+        return endTime;
     }
 
     @Override

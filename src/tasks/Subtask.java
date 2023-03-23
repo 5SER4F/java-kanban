@@ -1,12 +1,13 @@
 package tasks;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public class Subtask extends Task{
     private int myEpicId;
 
-    public Subtask(String name, String description, Status status, int myEpicId) {
-        super(name, description, status, TaskType.SUBTASK);
+    public Subtask(String name, String description, Status status, int myEpicId, int duration, Instant startTime) {
+        super(name, description, status, TaskType.SUBTASK, duration, startTime);
         this.myEpicId = myEpicId;
         id += Objects.hash(myEpicId);
     }

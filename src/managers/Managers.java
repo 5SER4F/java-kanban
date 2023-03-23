@@ -11,11 +11,11 @@ public class Managers {
         throw new IllegalStateException("Utility class");
     }
 
-    public static TaskManager getDefault() {
+    public static InMemoryTaskManager getDefault() {
         return new InMemoryTaskManager();
     }
 
-    public static HistoryManager getDefaultHistory() {
+    public static InMemoryHistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
 

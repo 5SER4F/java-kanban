@@ -8,11 +8,7 @@ import java.util.List;
 
 public interface TaskManager {
 
-    void printTasks();
-
-    void printEpics();
-
-    void printSubtasks();
+    List<Task> getPrioritizedTasks();
 
     void clearTasks();
 

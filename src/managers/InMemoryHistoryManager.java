@@ -1,5 +1,6 @@
 package managers;
 
+
 import tasks.Task;
 
 import java.util.*;
@@ -40,6 +41,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             Node nextNode = node.getNextNode();
             nodeLinks.remove(node.getData().getId());
             if (prevNode == null && nextNode == null) {
+                last = null;
                 return;
             }
             if (nextNode != null) {
@@ -86,4 +88,5 @@ public class InMemoryHistoryManager implements HistoryManager {
             return history;
         }
     }
+
 }

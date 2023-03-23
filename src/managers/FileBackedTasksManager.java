@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File storage;
@@ -21,21 +22,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public void setStorage(String newPath) throws IOException{
         storage = new File(newPath);
-    }
-
-    @Override
-    public void printTasks() {
-        super.printTasks();
-    }
-
-    @Override
-    public void printEpics() {
-        super.printEpics();
-    }
-
-    @Override
-    public void printSubtasks() {
-        super.printSubtasks();
     }
 
     @Override
@@ -143,7 +129,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-     private void save() throws ManagerSaveException {
+     protected void save() throws ManagerSaveException {
+        if (getPrioritizedTasks().isEmpty() && getInMemoryHistoryManager().getHistory().isEmpty()) {
+            try {
+                storage.createNewFile();
+            } catch (IOException e) {
+                throw new ManagerSaveException("Ошибка к доступу файла истории.");
+            }
+            return;
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(storage, StandardCharsets.UTF_8))) {
             writer.write("id,type,name,status,description,epic");
             writer.newLine();
@@ -151,7 +146,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 writer.write(taskToSave(task));
                 writer.newLine();
             }
-            writer.newLine();
+            writer.newLine();//разделяет таски и историю
             writer.write(HistoryManager.historyToString(super.getInMemoryHistoryManager()));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка к доступу файла истории.");
@@ -168,7 +163,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     private void loadHistory() {
-        if (!storage.canRead() || storage.length() == 0)
+        if (!storage.canRead() || storage.length() <= 40)
             return;
         try {
             String content = Files.readString(Path.of(storage.getPath()), StandardCharsets.UTF_8);
@@ -177,8 +172,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             for ( int i = 1; i < lines.length - 2; i++) {
                 addTaskFromString(lines[i]);
             }
-            for (String id : HistoryManager.historyFromString(lines[lines.length - 1]))
-                super.addToHistory(Integer.parseInt(id));
+            if (lines[lines.length - 2].isBlank()) {
+                for (String id : HistoryManager.historyFromString(lines[lines.length - 1]))
+                    super.addToHistory(Integer.parseInt(id));
+            }
 
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка к доступу файла истории.");
@@ -188,60 +185,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private void addTaskFromString(String taskAsString) {
         String[] fields = taskAsString.split(",");
         if (fields[1].equals(TaskType.TASK.toString())) {
-            super.addTask(new Task(fields[2], fields[4], Status.valueOf(fields[3])));
+            super.addTask(new Task(fields[2], fields[4], Status.valueOf(fields[3]), Integer.parseInt(fields[5]),
+                    Instant.parse(fields[6])));
         }
         if (fields[1].equals(TaskType.EPIC.toString())) {
             super.addEpic(new Epic(fields[2], fields[4]));
         }
         if (fields[1].equals(TaskType.SUBTASK.toString())) {
-            super.addSubtask(new Subtask(fields[2], fields[4], Status.valueOf(fields[3]), Integer.parseInt(fields[5])));
+            super.addSubtask(new Subtask(fields[2], fields[4], Status.valueOf(fields[3]), Integer.parseInt(fields[7]),
+                    Integer.parseInt(fields[5]), Instant.parse(fields[6])));
         }
     }
 
-    private Status parseStatus(String str) {
-        if (str.equals("NEW"))
-            return Status.NEW;
-        if (str.equals("IN_PROGRESS"))
-            return Status.IN_PROGRESS;
-        if (str.equals("DONE"))
-            return Status.DONE;
-        return Status.NEW;
-    }
 
-    public static void main(String[] args) throws IOException {
-
-        //создаем FileBackedTasksManager и записываем задачи
-        FileBackedTasksManager inMemoryTaskManager = Managers.loadFromFile(new File("history.csv"));
-
-        Task task1 = new Task("Задача 1", "Описание задачи 1", Status.NEW);
-        Task task2 = new Task("Задача 2", "Описание задачи 2", Status.DONE);
-        inMemoryTaskManager.addTask(task1);
-        inMemoryTaskManager.addTask(task2);
-
-        Epic epic = new Epic("Эпик", "Описание эпика 1");
-        inMemoryTaskManager.addEpic(epic);
-
-        Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", Status.NEW, epic.getId());
-        inMemoryTaskManager.addSubtask(subtask1);
-        Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", Status.IN_PROGRESS, epic.getId());
-        inMemoryTaskManager.addSubtask(subtask2);
-        Subtask subtask3 = new Subtask("Подзадача 3", "Описание подзадачи 2", Status.IN_PROGRESS, epic.getId());
-        inMemoryTaskManager.addSubtask(subtask3);
-
-        //обращаемся к здачама в порядке их создания
-        inMemoryTaskManager.getTask(task1.getId());
-        inMemoryTaskManager.getTask(task2.getId());
-        inMemoryTaskManager.getEpic(epic.getId());
-        inMemoryTaskManager.getSubtask(subtask1.getId());
-        inMemoryTaskManager.getSubtask(subtask2.getId());
-        inMemoryTaskManager.getSubtask(subtask3.getId());
-        inMemoryTaskManager.getTask(task2.getId());//еще раз обращаемся к таску2, он выйдет первый в истроии
-
-        //создаем новый менджер и загруджаем историю
-        FileBackedTasksManager inMemoryTaskManager2 = Managers.loadFromFile(new File("history.csv"));
-        inMemoryTaskManager2.setStorage("newHistory.csv");//устанавливаем новый файл для истории
-
-        inMemoryTaskManager2.removeTask(task1.getId());
-
-    }
 }
