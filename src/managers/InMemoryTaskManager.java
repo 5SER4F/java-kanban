@@ -1,6 +1,7 @@
 package managers;
 
 import tasks.*;
+import exceptions.IllegalTaskTimeException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,12 +10,8 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
-    private final Set<Task> prioritizedTasks = new TreeSet<>(new Comparator<Task>() {
-        @Override
-        public int compare(Task o1, Task o2) {
-            return o1.getStartTime().compareTo(o2.getStartTime());
-        }
-    });
+    private final Set<Task> prioritizedTasks = new TreeSet<>((o1, o2)
+            -> o1.getStartTime().compareTo(o2.getStartTime()));
     private final InMemoryHistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
 
     @Override
@@ -79,7 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addTask(Task task) {
         if (isIntersection(task)) {
-            throw new IllegalArgumentException("На это время уже назначена задача");
+            throw new IllegalTaskTimeException();
         }
         if (tasks.containsKey(task.getId())) {
             return;
@@ -91,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addEpic(Epic epic) {
         if (isIntersection(epic)) {
-            throw new IllegalArgumentException("На это время уже назначена задача");
+            throw new IllegalTaskTimeException();
         }
         if (epics.containsKey(epic.getId())) {
             return;
@@ -103,7 +100,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addSubtask(Subtask subtask) {
         if (isIntersection(subtask)) {
-            throw new IllegalArgumentException("На это время уже назначена задача");
+            throw new IllegalTaskTimeException();
         }
         if (!epics.containsKey(subtask.getMyEpicId())) {
             throw new IllegalStateException("Эпика для этого сабтаска  не существует");
@@ -120,7 +117,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (isIntersection(task)) {
-            throw new IllegalArgumentException("На это время уже назначена задача");
+            throw new IllegalTaskTimeException();
         }
         if (!tasks.containsKey(task.getId())) {
             System.out.println("Нельзя обновить несуществующую задачу");
@@ -138,7 +135,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic) {
         if (isIntersection(epic)) {
-            throw new IllegalArgumentException("На это время уже назначена задача");
+            throw new IllegalTaskTimeException();
         }
         if (!epics.containsKey(epic.getId())) {
             System.out.println("Нельзя обновить несуществующий эпик.");
@@ -156,7 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (isIntersection(subtask)) {
-            throw new IllegalArgumentException("На это время уже назначена задача");
+            throw new IllegalTaskTimeException();
         }
         if (!subtasks.containsKey(subtask.getId())) {
             System.out.println("Нельзя обновить несуществующую подзадачу.");

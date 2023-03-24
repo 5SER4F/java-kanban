@@ -134,7 +134,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             try {
                 storage.createNewFile();
             } catch (IOException e) {
-                throw new ManagerSaveException("Ошибка к доступу файла истории.");
+                throw new ManagerSaveException();
             }
             return;
         }
@@ -149,7 +149,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             writer.newLine();//разделяет таски и историю
             writer.write(HistoryManager.historyToString(super.getInMemoryHistoryManager()));
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка к доступу файла истории.");
+            throw new ManagerSaveException();
         }
     }
 
@@ -178,7 +178,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка к доступу файла истории.");
+            throw new ManagerSaveException();
         }
     }
 

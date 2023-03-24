@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import tasks.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import exceptions.IllegalTaskTimeException;
 import java.time.Instant;
 import java.util.function.Supplier;
 
@@ -91,8 +89,8 @@ abstract class TaskManagerTest <T extends TaskManager> {
 
     @Test void intersectionThrowIllegalArgumentException() {
 
-        final IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        final IllegalTaskTimeException exception = assertThrows(
+                IllegalTaskTimeException.class,
                 new Executable() {
                     @Override
                     public void execute() {

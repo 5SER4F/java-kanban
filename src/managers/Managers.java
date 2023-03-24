@@ -32,5 +32,4 @@ public class Managers {
         return history;
     }
 
-
 }

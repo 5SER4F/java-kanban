@@ -38,18 +38,20 @@ public class Epic extends Task{
                 status = Status.NEW;
                 break;
             }
-            if (subtask.status == Status.NEW) {
-                isDone = false;
-                continue;
+            switch (subtask.status) {
+                case NEW:
+                    isDone = false;
+                    continue;
+                case IN_PROGRESS:
+                    isDone = false;
+                    isHaveOneDone = true;
+                    break;
+                case DONE:
+                    isHaveOneDone = true;
+                    break;
             }
-            if (subtask.status == Status.IN_PROGRESS) {
-                isDone = false;
-                isHaveOneDone = true;
-                break;
-            }
-            if (subtask.status == Status.DONE)
-                isHaveOneDone = true;
         }
+
         if (isDone) {
             status = Status.DONE;
         }
