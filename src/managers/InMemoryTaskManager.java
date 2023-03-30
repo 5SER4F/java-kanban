@@ -236,6 +236,14 @@ public class InMemoryTaskManager implements TaskManager {
         return ids;
     }
 
+    @Override
+    public List<Task> getAllTasks() {
+        List<Task> allTask = new ArrayList<>(tasks.values());
+        allTask.addAll(epics.values());
+        allTask.addAll(subtasks.values());
+        return allTask;
+    }
+
     private void checkEpicStatus(int epicId) {
         Epic epicToCheck = epics.get(epicId);
         ArrayList<Subtask> subtasksToCheck = new ArrayList<>();
@@ -249,6 +257,18 @@ public class InMemoryTaskManager implements TaskManager {
         return prioritizedTasks.stream().anyMatch(taskToMatch -> task.getStartTime().isAfter(taskToMatch.getStartTime())
         && task.getStartTime().isBefore(taskToMatch.getStartTime()
                 .plusSeconds(taskToMatch.getDuration() * 60)));
+    }
+
+    public boolean containTask(int id) {
+        return tasks.containsKey(id);
+    }
+
+    public boolean containEpic(int id) {
+        return epics.containsKey(id);
+    }
+
+    public boolean containSubtask(int id) {
+        return subtasks.containsKey(id);
     }
 
     public HistoryManager getInMemoryHistoryManager() {

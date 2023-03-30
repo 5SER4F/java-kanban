@@ -12,15 +12,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 
+
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File storage;
 
+    protected FileBackedTasksManager() {};
+
     public FileBackedTasksManager(File storage) {
         this.storage = storage;
-        loadHistory();
     }
 
-    public void setStorage(String newPath) throws IOException{
+    public void setStorage(String newPath) throws IOException {
         storage = new File(newPath);
     }
 
@@ -129,7 +131,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-     protected void save() throws ManagerSaveException {
+    protected void save() throws ManagerSaveException {
         if (getPrioritizedTasks().isEmpty() && getInMemoryHistoryManager().getHistory().isEmpty()) {
             try {
                 storage.createNewFile();
@@ -142,7 +144,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(storage, StandardCharsets.UTF_8))) {
             writer.write("id,type,name,status,description,epic");
             writer.newLine();
-            for (Task task : super.getAllId()) {
+            for (Task task : super.getAllTasks()) {
                 writer.write(taskToSave(task));
                 writer.newLine();
             }
@@ -153,7 +155,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private String taskToSave(Task task) {
+    protected String taskToSave(Task task) {
         String[] splitedTask = task.toString().split(",");
         StringBuilder stringBuilder = new StringBuilder();
         for (String field : splitedTask) {
@@ -162,27 +164,37 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return stringBuilder.toString();
     }
 
-    private void loadHistory() {
-        if (!storage.canRead() || storage.length() <= 40)
-            return;
+    public void init() {
         try {
-            String content = Files.readString(Path.of(storage.getPath()), StandardCharsets.UTF_8);
-            String[] lines = content.split(System.lineSeparator());
-
-            for ( int i = 1; i < lines.length - 2; i++) {
-                addTaskFromString(lines[i]);
-            }
-            if (lines[lines.length - 2].isBlank()) {
-                for (String id : HistoryManager.historyFromString(lines[lines.length - 1]))
-                    super.addToHistory(Integer.parseInt(id));
-            }
-
+            loadHistory(readFromFile());
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
     }
 
-    private void addTaskFromString(String taskAsString) {
+    private String readFromFile() throws IOException {
+        return Files.readString(Path.of(storage.getPath()), StandardCharsets.UTF_8);
+    }
+
+    protected void loadHistory(String content) {
+        if(storage != null) {
+            if (!storage.canRead() || storage.length() <= 40)
+                return;
+        }
+
+        String[] lines = content.split(System.lineSeparator());
+
+        for (int i = 1; i < lines.length - 2; i++) {
+            addTaskFromString(lines[i]);
+        }
+        if (lines[lines.length - 2].isBlank()) {
+            for (String id : HistoryManager.historyFromString(lines[lines.length - 1]))
+                super.addToHistory(Integer.parseInt(id));
+        }
+
+    }
+
+    protected void addTaskFromString(String taskAsString) {
         String[] fields = taskAsString.split(",");
         if (fields[1].equals(TaskType.TASK.toString())) {
             super.addTask(new Task(fields[2], fields[4], Status.valueOf(fields[3]), Integer.parseInt(fields[5]),

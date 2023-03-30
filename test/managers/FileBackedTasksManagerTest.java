@@ -44,6 +44,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     public void loadAndSaveWithoutChangeMustBeSame() throws IOException {
         //manager.setStorage("historyTest0.csv");
         FileBackedTasksManager fileBackedTasksManager = Managers.loadFromFile(new File("historyTest0.csv"));
+        fileBackedTasksManager.init();
+        fileBackedTasksManager.save();
         fileBackedTasksManager.setStorage("newHistoryTest.csv");
         fileBackedTasksManager.save();
 

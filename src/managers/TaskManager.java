@@ -20,6 +20,8 @@ public interface TaskManager {
 
     Epic getEpic(int id);
 
+    List<Task> getAllTasks();
+
     Subtask getSubtask(int id);
 
     void addTask(Task task);
@@ -43,6 +45,12 @@ public interface TaskManager {
     void getSubtasksOfEpic(int epicId);
 
     void getSubtasksOfEpic(Epic epic);
+
+    boolean containTask(int id);
+
+    boolean containEpic(int id);
+
+    boolean containSubtask(int id);
 
     List<Task> getHistory();
 
