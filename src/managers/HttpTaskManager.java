@@ -3,12 +3,20 @@ package managers;
 import server.KVTaskClient;
 
 public class HttpTaskManager extends FileBackedTasksManager {
-    final private KVTaskClient taskClient;
+    private final KVTaskClient taskClient;
     private String key;
 
     public HttpTaskManager(KVTaskClient taskClient, String key) {
         this.taskClient = taskClient;
         this.key = key;
+    }
+
+    public KVTaskClient getTaskClient() {
+        return taskClient;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     @Override

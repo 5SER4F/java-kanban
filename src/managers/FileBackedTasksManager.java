@@ -16,7 +16,8 @@ import java.time.Instant;
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private File storage;
 
-    protected FileBackedTasksManager() {};
+    protected FileBackedTasksManager() {
+    }
 
     public FileBackedTasksManager(File storage) {
         this.storage = storage;
@@ -177,13 +178,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     protected void loadHistory(String content) {
-        if(storage != null) {
-            if (!storage.canRead() || storage.length() <= 40)
-                return;
+        if ((storage != null) && (!storage.canRead() || storage.length() <= 40)) {
+            return;
         }
-
         String[] lines = content.split(System.lineSeparator());
-
         for (int i = 1; i < lines.length - 2; i++) {
             addTaskFromString(lines[i]);
         }

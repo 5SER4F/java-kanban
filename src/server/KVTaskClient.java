@@ -33,8 +33,12 @@ public class KVTaskClient {
             if (response.statusCode() - 200 > 99) {
                 System.out.println("Ошибка, код ответа = " + response.statusCode());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.out.println("Во время отправки произошла ошибка");
+        } catch (InterruptedException e) {
+            System.out.println("Нет ответа от сервера");
+            Thread.interrupted();
+            e.printStackTrace();
         }
     }
 
@@ -48,8 +52,12 @@ public class KVTaskClient {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8);
             HttpResponse<String> response = client.send(request, handler);
             return response.body();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.out.println("Во время получения данных произошла ошибка");
+        } catch (InterruptedException e) {
+            System.out.println("Нет ответа от сервера");
+            Thread.interrupted();
+            e.printStackTrace();
         }
         return "";
     }
@@ -64,9 +72,13 @@ public class KVTaskClient {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request, handler);
             return response.body();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.out.println("Не удалось провести регистрацию");
-            return "";
+        } catch (InterruptedException e) {
+            System.out.println("Нет ответа от сервера");
+            Thread.interrupted();
+            e.printStackTrace();
         }
+        return "";
     }
 }

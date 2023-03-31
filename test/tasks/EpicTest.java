@@ -29,6 +29,7 @@ class EpicTest {
     public void epicWithAllNewSubTaskMustBeNew() {
         Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
                 Status.NEW, epic.getId(), 3, Instant.now());
+        epic.addSubtask(subtask);
         epic.checkStatus(List.of(subtask));
         assertEquals(Status.NEW, epic.getStatus());
     }

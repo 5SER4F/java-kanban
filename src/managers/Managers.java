@@ -1,5 +1,7 @@
 package managers;
 
+import server.KVTaskClient;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -11,7 +13,11 @@ public class Managers {
         throw new IllegalStateException("Utility class");
     }
 
-    public static InMemoryTaskManager getDefault() {
+    public static TaskManager getDefault(KVTaskClient taskClient, String key) {
+        return new HttpTaskManager(taskClient, key);
+    }
+
+    public static InMemoryTaskManager getInMemoryMananger() {
         return new InMemoryTaskManager();
     }
 

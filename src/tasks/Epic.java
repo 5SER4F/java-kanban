@@ -30,37 +30,20 @@ public class Epic extends Task{
     }
 
     public void checkStatus(List<Subtask> subtasks) {
-        boolean isDone = true;
-        boolean isHaveOneDone = false;
-
+        boolean isHaveDone = false;
+        boolean isHaveNew = false;
+        boolean isHaveInProgress = false;
         for (Subtask subtask : subtasks) {
-            if (subtasks.isEmpty()) {
-                status = Status.NEW;
-                break;
-            }
-            switch (subtask.status) {
-                case NEW:
-                    isDone = false;
-                    continue;
-                case IN_PROGRESS:
-                    isDone = false;
-                    isHaveOneDone = true;
-                    break;
-                case DONE:
-                    isHaveOneDone = true;
-                    break;
-            }
+            isHaveNew = Status.NEW.equals(subtask.status) ? true : isHaveNew;
+            isHaveDone = Status.DONE.equals(subtask.status) ? true : isHaveDone;
+            isHaveInProgress = Status.IN_PROGRESS.equals((subtask.status)) ? true : isHaveInProgress;
         }
-
-        if (isDone) {
+        if (subtasks.isEmpty() || (isHaveNew & !isHaveInProgress & !isHaveDone)) {
+            status = Status.NEW;
+        } else if (isHaveInProgress || (isHaveNew & isHaveDone)) {
+            status = Status.IN_PROGRESS;
+        } else if (isHaveDone) {
             status = Status.DONE;
-        }
-        else {
-            if (isHaveOneDone) {
-                status = Status.IN_PROGRESS;
-            } else {
-                status = Status.NEW;
-            }
         }
 
         duration = subtasks.stream().mapToInt(subtask -> subtask.getDuration()).sum();
